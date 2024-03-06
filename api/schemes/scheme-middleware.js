@@ -41,7 +41,7 @@ const validateScheme = (req, res, next) => {
   typeof scheme_name !== 'string' ||
   !scheme_name.trim()
   ) {
-    NodeList({ status: 400, message: "invalid scheme_name"})
+    next({ status: 400, message: "invalid scheme_name"})
   } else {
     next()
   }

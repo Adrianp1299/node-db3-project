@@ -24,7 +24,7 @@ function find() { // EXERCISE A
   .groupBy('sc.scheme_id')
 }
 
-function findById(scheme_id) { // EXERCISE B
+async function findById(scheme_id) { // EXERCISE B
   /*
     1B- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`:
 
@@ -90,7 +90,7 @@ function findById(scheme_id) { // EXERCISE B
         "steps": []
       }
   */
- const rows = db('schemes as sc')
+ const rows = await db('schemes as sc')
    .leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
    .where('sc.scheme_id', scheme_id)
    .select('st.*', 'sc.scheme_name')
@@ -114,7 +114,7 @@ function findById(scheme_id) { // EXERCISE B
   return result
 }
 
-function findSteps(scheme_id) { // EXERCISE C
+async function findSteps(scheme_id) { // EXERCISE C
   /*
     1C- Build a query in Knex that returns the following data.
     The steps should be sorted by step_number, and the array
@@ -141,8 +141,11 @@ function findSteps(scheme_id) { // EXERCISE C
       .where('sc.scheme_id', scheme_id)
       .orderBy('step_number')
 
-  if (!rows[0].step_id) return []
-  return rows
+  if (!rows[0].step_id) {
+    return []
+  } else {
+    return rows
+  }
 }
 
 function add(scheme) { // EXERCISE D
@@ -161,6 +164,17 @@ function addStep(scheme_id, step) { // EXERCISE E
     and resolves to _all the steps_ belonging to the given `scheme_id`,
     including the newly created one.
   */
+ return db('steps').insert({
+  ...step,
+  scheme_id
+ })
+ .then(() => {
+  return db('steps as st')
+  .join('schemes as sc', 'sc.scheme_id', 'st.scheme_id')
+  .select('step_id', 'step_number', 'instructions', 'scheme_name')
+  .orderBy('step_number')
+  .where('sc.scheme_id', scheme_id)
+ })
 }
 
 module.exports = {
